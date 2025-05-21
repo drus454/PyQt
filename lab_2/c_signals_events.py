@@ -21,7 +21,7 @@
 """
 
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtCore, QtWidgets
 from c_signals_events_form import Ui_Form
 from datetime import datetime
 
@@ -34,24 +34,31 @@ class Window(QtWidgets.QWidget, Ui_Form):
         self.setupUi(self)
         self.uinitSignals()
 
-        self.old_pos = self.pos()
-        self.old_size = self.size()
+        self.wight_screen, self.height_screen = QtWidgets.QApplication.primaryScreen().size().toTuple()
+        self.screen = QtWidgets.QApplication.primaryScreen()
 
-        self.plainTextEdit.clear()
+        #Координаты центра экрана
+        self.center = self.screen.availableGeometry().center()
+        self.center_window = QtCore.QPoint(self.width() // 2, self.height() // 2)
 
+        #Координаты левого нижнего края
+        self.pos_lb = self.screen.availableGeometry().bottomLeft() - QtCore.QPoint(0, self.height())
+
+        #Координаты правого нинего окна
+        self.pos_rb = self.screen.availableGeometry().bottomRight() - QtCore.QPoint(self.width(), self.height())
+
+        #Координаты правого верхнего окна
+
+        self.pos_rt = self.wight_screen, self.height_screen
 
     def uinitSignals(self):
-        self.pushButtonMoveCoords.clicked.connect(self.moveWindow)
-        self.pushButtonGetData.clicked.connect(self.getScreenInfo)
-        self.pushButtonLT.clicked.connect(self.moveLT)
-        self.pushButtonRT.clicked.connect(self.moveRT)
-        self.pushButtonCenter.clicked.connect(self.moveCenter)
-        self.pushButtonLB.clicked.connect(self.moveLB)
-        self.pushButtonRB.clicked.connect(self.moveRB)
-
-    def moveLT(self):
-        screen = QtWidgets.QApplication.primaryScreen()
-        self.move(screen.availableGeometry().topLeft())
+        self.pushButtonMoveCoords.clicked.connect(lambda: self.move(int(self.spinBoxX.value()), self.spinBoxY.value())) #Перемещение окна по заданным координатам
+        self.pushButtonLT.clicked.connect(lambda: self.move(0, 0)) #Перемещение окна в верхний левый угол
+        self.pushButtonRT.clicked.connect(lambda: self.move(int(self.pos_rt)))
+        self.pushButtonCenter.clicked.connect(lambda: self.move(self.center - self.center_window)) #Перемещение окна по центру
+        self.pushButtonLB.clicked.connect(lambda: self.move(self.pos_lb))#Перемещение окна в левый нижний угол
+        self.pushButtonRB.clicked.connect(lambda: self.move(self.pos_rb))#Перемещение окна в правый верхний угол
+        self.pushButtonGetData.clicked.connect(self.getScreenInfo) #Получение текста в lineEdit
 
     def moveRT(self):
         screen = QtWidgets.QApplication.primaryScreen()
@@ -59,55 +66,20 @@ class Window(QtWidgets.QWidget, Ui_Form):
         top = screen.availableGeometry().top()
         self.move(right, top)
 
-    def moveCenter(self):
-        screen = QtWidgets.QApplication.primaryScreen()
-        center = screen.availableGeometry().center() - QtCore.QPoint(self.width() // 2, self.height() // 2)
-        self.move(center)
-
-    def moveLB(self):
-        screen = QtWidgets.QApplication.primaryScreen()
-        pos = screen.availableGeometry().bottomLeft() - QtCore.QPoint(0, self.height())
-        self.move(pos)
-
-    def moveRB(self):
-        screen = QtWidgets.QApplication.primaryScreen()
-        pos = screen.availableGeometry().bottomRight() - QtCore.QPoint(self.width(), self.height())
-        self.move(pos)
-
-    def moveWindow(self):
-        x = self.spinBoxX.value()
-        y = self.spinBoxY.value()
-        self.move(x, y)
-
     def getScreenInfo(self):
 
-        screens = QtWidgets.QApplication.screens()
-        current_screen = QtWidgets.QApplication.screenAt(self.geometry().center())
-        geometry = self.geometry()
-        center = geometry.center()
+        info = f"""
+        Информация о системе: 
+        Количество экранов: {len(QtWidgets.QApplication.screens())}
+        Основное окно: {QtWidgets.QApplication.primaryScreen().name()}
+        Разрешение экрана: Ширина - {self.wight_screen}, Высота - {self.height_screen}
+        Минимальный размер: {self.minimumSize()}
+        Размеры окна: {self.size().width()} x {self.size().height()}
+        Координты окна: {self.pos().toTuple()}
+        Состояние: {self.windowState().name}
+        """
 
-        state = ("Свернуто" if self.isMinimized() else
-                 "Развернуто" if self.isMaximized() else
-                 "Активно" if self.isActiveWindow() else
-                 "Отображено" if self.isVisible() else
-                 "Не определено")
-
-        # Формируем информацию
-        info = []
-        info.append(f'=== Информация о системе [{datetime.now().strftime("%H:%M:%S")}] ===')
-        info.append(f'Количество экранов: {len(screens)}')
-
-        if current_screen:
-            info.append(f'Текущий экран: {current_screen.name()}')
-            info.append(f'Разрешение: {current_screen.size().width()}x{current_screen.size().height()}')
-            info.append(f'\nРазмер окна: {self.width()}x{self.height()}')
-            info.append((f'Минимальные размеры окна: {self.minimumWidth()}x{self.minimumHeight()}'))
-            info.append(f'Позиция: {self.x()}, {self.y()}')
-            screen_relative = center - current_screen.geometry().topLeft()
-            info.append(f"Центр относительно экрана: ({screen_relative.x()}, {screen_relative.y()})")
-            info.append(f'Состояние окна: {state}')
-        self.plainTextEdit.setPlainText('\n'.join(info))
-
+        self.plainTextEdit.setPlainText(info)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication()

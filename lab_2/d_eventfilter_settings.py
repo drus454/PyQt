@@ -30,22 +30,21 @@ class Window(QtWidgets.QWidget, Ui_Form):
         self.setupUi(self)
         self.comboBox.addItems(["oct", "hex", "bin", "dec"])
         self.comboBox.currentTextChanged.connect(self.updateLcdNuber)
-        self.dial.installEventFilter(self)
+
         self.dial.valueChanged.connect(self.updateControll)
         self.horizontalSlider.valueChanged.connect(self.updateControll)
 
-    def eventFilter(self, watched, event, /):
-        if watched == self.dial and event.type() == QtCore.QEvent.Type.KeyPress:
-            if event.key() == QtCore.Qt.Key.Key_Plus:
-                self.dial.setValue(self.dial.value() + 1)
-                print(f"Новое значение: {self.dial.value()}")
-                return True
-            elif event.key() == QtCore.Qt.Key.Key_Minus:
-                self.dial.setValue(self.dial.value() - 1)
-                print(f"Новое значение: {self.dial.value()}")
-                return True
-        return super(Window, self).eventFilter(watched, event)
 
+    def keyPressEvent(self, event, /):
+        if event.key() == QtCore.Qt.Key.Key_Plus:
+            self.dial.setValue(self.dial.value() + 1)
+            print(f"Новое значение: {self.dial.value()}")
+            return True
+        elif event.key() == QtCore.Qt.Key.Key_Minus:
+            self.dial.setValue(self.dial.value() - 1)
+            print(f"Новое значение: {self.dial.value()}")
+            return True
+        return super().keyPressEvent(event)
 
     def updateControll(self, value):
         sender = self.sender()
