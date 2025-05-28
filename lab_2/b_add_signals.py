@@ -1,6 +1,7 @@
 import random
 
 from PySide6 import QtWidgets, QtCore
+from datetime import datetime
 
 
 class Window(QtWidgets.QWidget):
