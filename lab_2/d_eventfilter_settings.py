@@ -20,7 +20,7 @@
 
 
 from PySide6 import QtWidgets, QtCore
-from d_eventfilter_settings_form import Ui_Form
+from ui.d_eventfilter_settings_form import Ui_Form
 
 class Window(QtWidgets.QWidget, Ui_Form):
 
