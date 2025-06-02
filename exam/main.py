@@ -14,7 +14,6 @@ class Window(QtWidgets.QWidget, Ui_Note):
         self.notes_dict = {}
         self.last = None
 
-        # Загрузка данных при старте
         self.load_data()
 
 
