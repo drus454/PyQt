@@ -38,7 +38,7 @@ class Window(QtWidgets.QWidget, Ui_Note):
             self.redraw_list_menu()
             if self.last:
                 self.item_select(self.last)
-            self.save_data()  # Создаем новый файл, если не существует
+            self.save_data()
 
     def save_data(self):
         """
