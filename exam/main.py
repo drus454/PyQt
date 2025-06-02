@@ -90,9 +90,6 @@ class Window(QtWidgets.QWidget, Ui_Note):
         Метод удаления заметки
         :return:
         """
-        if not self.treeWidget.selectedItems():
-            return
-
         item = self.treeWidget.selectedItems()[0]
         note_name = item.text(0).strip() or "untitled"
 
